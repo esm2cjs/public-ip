@@ -1,14 +1,15 @@
 #!/bin/bash
+set -e
 
 rm -rf esm cjs
 mkdir -p esm cjs
 mv index.js esm/index.js
 mv index.d.ts esm/index.d.ts
-# mv core.js esm/core.js
+mv core.js esm/core.js
 mv index.test-d.ts esm/index.test-d.ts
 
 rm test-browser.*
-rm browser.js browser.d.ts
+rm browser.js
 rm test.js
 rm -rf mocks
 
@@ -23,6 +24,8 @@ function replace_imports () {
 }
 # replace_imports "FROM" "@esm2cjs/TO"
 replace_imports "got" # to = "@esm2cjs/FROM"
+replace_imports "is-ip" # to = "@esm2cjs/FROM"
+replace_imports "aggregate-error" # to = "@esm2cjs/FROM"
 
 PJSON=$(cat package.json | jq --tab '
 	del(.type)
@@ -50,6 +53,10 @@ PJSON=$(cat package.json | jq --tab '
 
 	| .dependencies["@esm2cjs/got"] = .dependencies["got"]
 	| del(.dependencies["got"])
+	| .dependencies["@esm2cjs/is-ip"] = .dependencies["is-ip"]
+	| del(.dependencies["is-ip"])
+	| .dependencies["@esm2cjs/aggregate-error"] = .dependencies["aggregate-error"]
+	| del(.dependencies["aggregate-error"])
 ')
 # Placeholder for custom deps:
 	# | .dependencies["@esm2cjs/DEP"] = .dependencies["DEP"]

@@ -35,14 +35,11 @@ npm i @esm2cjs/public-ip
 
 ```js
 // Using ESM import syntax
-import publicIp from "@esm2cjs/public-ip";
+import { publicIp, publicIpv4, publicIpv6 } from "@esm2cjs/public-ip";
 
 // Using CommonJS require()
-const publicIp = require("@esm2cjs/public-ip").default;
+const { publicIp, publicIpv4, publicIpv6 } = require("@esm2cjs/public-ip");
 ```
-
-> **Note:**
-> Because the original module uses `export default`, you need to append `.default` to the `require()` call.
 
 For more details, please see the original [repository](https://github.com/sindresorhus/public-ip).
 
