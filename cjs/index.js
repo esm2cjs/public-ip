@@ -24,22 +24,20 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var esm_exports = {};
 __export(esm_exports, {
   CancelError: () => import_got2.CancelError,
-  IpNotFoundError: () => IpNotFoundError,
-  default: () => esm_default
+  IpNotFoundError: () => import_core2.IpNotFoundError,
+  publicIp: () => publicIp,
+  publicIpv4: () => publicIpv4,
+  publicIpv6: () => publicIpv6
 });
 module.exports = __toCommonJS(esm_exports);
 var import_node_util = require("node:util");
 var import_node_dgram = __toESM(require("node:dgram"));
 var import_dns_socket = __toESM(require("dns-socket"));
 var import_got = __toESM(require("@esm2cjs/got"));
-var import_is_ip = __toESM(require("is-ip"));
+var import_is_ip = require("@esm2cjs/is-ip");
+var import_core = require("./core.js");
+var import_core2 = require("./core.js");
 var import_got2 = require("@esm2cjs/got");
-class IpNotFoundError extends Error {
-  constructor(options) {
-    super("Could not get the public IP address", options);
-    this.name = "IpNotFoundError";
-  }
-}
 const defaults = {
   timeout: 5e3,
   onlyHttps: false
@@ -141,7 +139,8 @@ const queryDns = (version, options) => {
           } = dnsResponse;
           const response = (typeof data2 === "string" ? data2 : data2.toString()).trim();
           const ip = transform ? transform(response) : response;
-          if (ip && import_is_ip.default[version](ip)) {
+          const method = version === "v6" ? import_is_ip.isIPv6 : import_is_ip.isIPv4;
+          if (ip && method(ip)) {
             socket.destroy();
             return ip;
           }
@@ -151,7 +150,7 @@ const queryDns = (version, options) => {
       }
     }
     socket.destroy();
-    throw new IpNotFoundError({ cause: lastError });
+    throw new import_core.IpNotFoundError({ cause: lastError });
   })();
   promise.cancel = () => {
     socket.destroy();
@@ -183,7 +182,8 @@ const queryHttps = (version, options) => {
           cancel = gotPromise.cancel;
           const response = await gotPromise;
           const ip = (response.body || "").trim();
-          if (ip && import_is_ip.default[version](ip)) {
+          const method = version === "v6" ? import_is_ip.isIPv6 : import_is_ip.isIPv4;
+          if (ip && method(ip)) {
             return ip;
           }
         } catch (error) {
@@ -193,7 +193,7 @@ const queryHttps = (version, options) => {
           }
         }
       }
-      throw new IpNotFoundError({ cause: lastError });
+      throw new import_core.IpNotFoundError({ cause: lastError });
     } catch (error) {
       if (!(error instanceof import_got.CancelError)) {
         throw error;
@@ -223,8 +223,8 @@ const queryAll = (version, options) => {
   promise.cancel = cancel;
   return promise;
 };
-const publicIp = {};
-publicIp.v4 = (options) => {
+const publicIp = (0, import_core.createPublicIp)(publicIpv4, publicIpv6);
+function publicIpv4(options) {
   options = {
     ...defaults,
     ...options
@@ -236,8 +236,8 @@ publicIp.v4 = (options) => {
     return queryHttps("v4", options);
   }
   return queryDns("v4", options);
-};
-publicIp.v6 = (options) => {
+}
+function publicIpv6(options) {
   options = {
     ...defaults,
     ...options
@@ -249,11 +249,13 @@ publicIp.v6 = (options) => {
     return queryHttps("v6", options);
   }
   return queryDns("v6", options);
-};
-var esm_default = publicIp;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   CancelError,
-  IpNotFoundError
+  IpNotFoundError,
+  publicIp,
+  publicIpv4,
+  publicIpv6
 });
 //# sourceMappingURL=index.js.map
