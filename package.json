@@ -1,32 +1,30 @@
 {
-	"name": "public-ip",
-	"version": "6.0.1",
-	"description": "Get your public IP address — very fast!",
+	"name": "@esm2cjs/public-ip",
+	"version": "5.0.0",
+	"description": "Get your public IP address — very fast!. This is a fork of sindresorhus/public-ip, but with CommonJS support.",
 	"license": "MIT",
-	"repository": "sindresorhus/public-ip",
-	"funding": "https://github.com/sponsors/sindresorhus",
+	"repository": "esm2cjs/public-ip",
+	"funding": "https://github.com/sponsors/AlCalzone",
 	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "https://sindresorhus.com"
+		"name": "Dominic Griesel",
+		"email": "d.griesel@gmx.net"
 	},
-	"type": "module",
 	"exports": {
-		"types": "./index.d.ts",
-		"node": "./index.js",
-		"default": "./browser.js"
+		".": {
+			"import": "./esm/index.js",
+			"require": "./cjs/index.js"
+		},
+		"./package.json": "./package.json"
 	},
 	"engines": {
-		"node": ">=14.16"
+		"node": "^14.13.1 || >=16.0.0"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
 	},
 	"files": [
-		"index.js",
-		"index.d.ts",
-		"browser.js",
-		"core.js"
+		"cjs/",
+		"esm/"
 	],
 	"keywords": [
 		"get",
@@ -42,22 +40,21 @@
 		"dns"
 	],
 	"dependencies": {
-		"aggregate-error": "^4.0.1",
+		"@esm2cjs/got": "^12.0.0",
 		"dns-socket": "^4.2.2",
-		"got": "^12.1.0",
-		"is-ip": "^4.0.0"
+		"is-ip": "^3.1.0"
 	},
 	"devDependencies": {
-		"ava": "^4.3.0",
-		"sinon": "^14.0.0",
-		"time-span": "^5.0.0",
-		"tsd": "^0.21.0",
-		"xo": "^0.50.0"
+		"ava": "^3.15.0",
+		"sinon": "^12.0.1",
+		"tsd": "^0.19.0",
+		"xo": "^0.47.0"
 	},
 	"xo": {
-		"envs": [
-			"node",
-			"browser"
+		"ignores": [
+			"cjs",
+			"**/*.test-d.ts",
+			"**/*.d.ts"
 		]
 	},
 	"ava": {
@@ -65,5 +62,24 @@
 		"files": [
 			"test.js"
 		]
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"main": "cjs/index.js",
+	"module": "esm/index.js",
+	"types": "esm/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"esm/index.d.ts": [
+				"esm/index.d.ts"
+			],
+			"cjs/index.d.ts": [
+				"esm/index.d.ts"
+			],
+			"*": [
+				"esm/*"
+			]
+		}
 	}
 }

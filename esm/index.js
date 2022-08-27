@@ -1,11 +1,15 @@
 import {promisify} from 'node:util';
 import dgram from 'node:dgram';
 import dns from 'dns-socket';
-import got, {CancelError} from 'got';
-import {isIPv6, isIPv4} from 'is-ip';
-import {createPublicIp, IpNotFoundError} from './core.js';
+import got, {CancelError} from '@esm2cjs/got';
+import isIp from 'is-ip';
 
-export {IpNotFoundError} from './core.js';
+export class IpNotFoundError extends Error {
+	constructor(options) {
+		super('Could not get the public IP address', options);
+		this.name = 'IpNotFoundError';
+	}
+}
 
 const defaults = {
 	timeout: 5000,
@@ -120,9 +124,7 @@ const queryDns = (version, options) => {
 
 					const ip = transform ? transform(response) : response;
 
-					const method = version === 'v6' ? isIPv6 : isIPv4;
-
-					if (ip && method(ip)) {
+					if (ip && isIp[version](ip)) {
 						socket.destroy();
 						return ip;
 					}
@@ -176,9 +178,7 @@ const queryHttps = (version, options) => {
 
 					const ip = (response.body || '').trim();
 
-					const method = version === 'v6' ? isIPv6 : isIPv4;
-
-					if (ip && method(ip)) {
+					if (ip && isIp[version](ip)) {
 						return ip;
 					}
 				} catch (error) {
@@ -228,9 +228,9 @@ const queryAll = (version, options) => {
 	return promise;
 };
 
-export const publicIp = createPublicIp(publicIpv4, publicIpv6);
+const publicIp = {};
 
-export function publicIpv4(options) {
+publicIp.v4 = options => {
 	options = {
 		...defaults,
 		...options,
@@ -245,9 +245,9 @@ export function publicIpv4(options) {
 	}
 
 	return queryDns('v4', options);
-}
+};
 
-export function publicIpv6(options) {
+publicIp.v6 = options => {
 	options = {
 		...defaults,
 		...options,
@@ -262,6 +262,8 @@ export function publicIpv6(options) {
 	}
 
 	return queryDns('v6', options);
-}
+};
 
-export {CancelError} from 'got';
+export default publicIp;
+
+export {CancelError} from '@esm2cjs/got';
